@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dovecote Inbox</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* --- PYLEA DOVE THEME --- */
+        :root {
+            --parchment-bg: #f3e5ab;   
+            --ink-color: #2c0e0e;      
+            --pylea-teal: #006d77;
+            --pylea-gold: #d4ac0d;
+            --border-color: #5c4033;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: #1a1a1a;
+            background-image: radial-gradient(#2b2b2b 15%, transparent 16%), radial-gradient(#2b2b2b 15%, transparent 16%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+            color: var(--ink-color);
+            font-family: 'Cinzel', serif;
+            margin: 0;
+            padding: 15px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 550px;
+            background-color: var(--parchment-bg);
+            padding: 25px 20px;
+            border-radius: 4px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5), inset 0 0 60px rgba(92, 64, 51, 0.3);
+            border: 6px double var(--border-color);
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--pylea-teal);
+            font-size: 1.8rem;
+            margin: 0;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        /* --- INPUTS --- */
+        label {
+            display: block;
+            margin-top: 15px;
+            color: var(--border-color);
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border: none;
+            border-bottom: 2px solid var(--border-color);
+            color: var(--ink-color);
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            font-size: 16px; 
+            border-radius: 4px 4px 0 0;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.6);
+            border-bottom-color: var(--pylea-teal);
+        }
+
+        /* --- SECURITY BOX --- */
+        .security-box {
+            background-color: rgba(0, 109, 119, 0.05);
+            border: 2px dashed var(--pylea-teal);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .security-box.visible { display: block; }
+        .security-box.verified { 
+            background-color: rgba(212, 172, 13, 0.15); 
+            border-style: solid; 
+            border-color: var(--pylea-gold); 
+        }
+
+        .question-text { 
+            font-weight: bold; 
+            color: var(--pylea-teal); 
+            margin-bottom: 10px; 
+            display: block; 
+            font-size: 1rem;
+        }
+        
+        .success-badge { 
+            display: none; 
+            color: var(--pylea-teal); 
+            font-family: 'Dancing Script', cursive; 
+            font-size: 1.4rem; 
+            margin-top: 5px;
+        }
+
+        /* --- BUTTONS --- */
+        button {
+            width: 100%;
+            padding: 16px; 
+            margin-top: 20px;
+            background-color: #4a4a4a;
+            color: rgba(255,255,255,0.7);
+            border: none;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: not-allowed;
+            border-radius: 50px;
+            transition: all 0.4s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        button.active {
+            background: radial-gradient(circle at 30% 30%, #008c99, #006d77);
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 109, 119, 0.4);
+            border: 2px solid #004d55;
+        }
+        
+        button.active:active { transform: scale(0.98); }
+
+        /* --- MESSAGE CARDS --- */
+        .hidden { display: none; }
+
+        .message-card {
+            background: rgba(255,255,255,0.4);
+            border-left: 4px solid var(--pylea-teal);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .msg-meta {
+            font-size: 0.8rem;
+            color: var(--border-color);
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .msg-body {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.4rem; 
+            color: var(--ink-color);
+            line-height: 1.4;
+        }
+
+        .portal-link {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+            color: var(--border-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(92, 64, 51, 0.3);
+            padding-top: 15px;
+            font-style: italic;
+        }
+
+        /* --- FOOTER STYLING --- */
+        .footer {
+            margin-top: 40px;
+            font-size: 0.75rem;
+            color: #ccc;
+            text-align: center;
+            line-height: 1.5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Dovecote Inbox</h1>
+        <p style="text-align:center; font-style:italic; font-size:0.9rem; color: var(--border-color); margin-bottom: 20px;">
+            Identify yourself to receive your doves.
+        </p>
+
+        <div id="loginScreen">
+            <label>Select Committee</label>
+            <select id="myCommittee">
+                <option value="" disabled selected>Select...</option>
+                <option>Economic & Social Council</option>
+                <option>Historical Crisis Committee</option>
+                <option>Human Rights Council</option>
+                <option>NATO</option>
+                <option>Security Council</option>
+                <option>UN Environment Programme</option>
+                <option>UN Women</option>
+                <option>UNESCO</option>
+                <option>World Health Organisation</option>
+                <option value="Secretariat">Secretariat</option>
+                <option value="Executive Team">Executive Team</option>
+                <option value="Executive Board">Executive Board (Chairs)</option>
+                <option value="Advisors">Advisors / Faculty</option>
+            </select>
+
+            <label>Select Role / Country</label>
+            <select id="myCountry" onchange="generateSecurityCheck()">
+                <option value="" disabled selected>Select...</option>
+                <optgroup label="Leadership Roles">
+                    <option value="President">President</option>
+                    <option value="Secretary General">Secretary General</option>
+                    <option value="Deputy Secretary General">Deputy Secretary General</option>
+                    <option value="President of the GA">President of the GA</option>
+                    <option value="Executive Member">Executive Member</option>
+                    <option value="Chair">Chair</option>
+                    <option value="Co-Chair">Co-Chair</option>
+                    <option value="Advisor">Advisor / Faculty</option>
+                    <option value="Staff">Administrative Staff</option>
+                </optgroup>
+                <optgroup label="Member States">
+                    <option value="Albania">Albania</option>
+                    <option value="Argentina">Argentina</option>
+                    <option value="Armenia">Armenia</option>
+                    <option value="Australia">Australia</option>
+                    <option value="Austria">Austria</option>
+                    <option value="Belarus">Belarus</option>
+                    <option value="Bulgaria">Bulgaria</option>
+                    <option value="Byzantium">Byzantium</option>
+                    <option value="Canada">Canada</option>
+                    <option value="China">China</option>
+                    <option value="Croatia">Croatia</option>
+                    <option value="Czech Republic">Czech Republic</option>
+                    <option value="Denmark">Denmark</option>
+                    <option value="Egypt">Egypt</option>
+                    <option value="Estonia">Estonia</option>
+                    <option value="Finland">Finland</option>
+                    <option value="France">France</option>
+                    <option value="Germany">Germany</option>
+                    <option value="Greece">Greece</option>
+                    <option value="Hungary">Hungary</option>
+                    <option value="Iceland">Iceland</option>
+                    <option value="India">India</option>
+                    <option value="Ireland">Ireland</option>
+                    <option value="Italy">Italy</option>
+                    <option value="Japan">Japan</option>
+                    <option value="Latvia">Latvia</option>
+                    <option value="Malta">Malta</option>
+                    <option value="Mexico">Mexico</option>
+                    <option value="Montenegro">Montenegro</option>
+                    <option value="New Zealand">New Zealand</option>
+                    <option value="Nigeria">Nigeria</option>
+                    <option value="North Korea">North Korea</option>
+                    <option value="North Macedonia">North Macedonia</option>
+                    <option value="Norway">Norway</option>
+                    <option value="Poland">Poland</option>
+                    <option value="Portugal">Portugal</option>
+                    <option value="Qatar">Qatar</option>
+                    <option value="Republic of Korea">Republic of Korea</option>
+                    <option value="Romania">Romania</option>
+                    <option value="Russia">Russia</option>
+                    <option value="Saudi Arabia">Saudi Arabia</option>
+                    <option value="Slovakia">Slovakia</option>
+                    <option value="Slovenia">Slovenia</option>
+                    <option value="South Africa">South Africa</option>
+                    <option value="Spain">Spain</option>
+                    <option value="Sweden">Sweden</option>
+                    <option value="Switzerland">Switzerland</option>
+                    <option value="The Acarnanian League">The Acarnanian League</option>
+                    <option value="The Arcadian League">The Arcadian League</option>
+                    <option value="The Archaean League">The Archaean League</option>
+                    <option value="The City State of Argos">The City State of Argos</option>
+                    <option value="The City State of Athens">The City State of Athens</option>
+                    <option value="The City State of Corcyra">The City State of Corcyra</option>
+                    <option value="The City State of Corinth">The City State of Corinth</option>
+                    <option value="The City State of Elis">The City State of Elis</option>
+                    <option value="The City State of Epidaurus">The City State of Epidaurus</option>
+                    <option value="The City State of Euboea">The City State of Euboea</option>
+                    <option value="The City State of Locris">The City State of Locris</option>
+                    <option value="The City State of Megara">The City State of Megara</option>
+                    <option value="The City State of Perintus, Thracian Peninsula">The City State of Perintus, Thracian Peninsula</option>
+                    <option value="The City State of Rhodes">The City State of Rhodes</option>
+                    <option value="The City State of The Aetolian League">The City State of The Aetolian League</option>
+                    <option value="The City State of Thebes">The City State of Thebes</option>
+                    <option value="The Netherlands">The Netherlands</option>
+                    <option value="The Thessalian League">The Thessalian League</option>
+                    <option value="Turkey">Turkey</option>
+                    <option value="USA">USA</option>
+                    <option value="Ukraine">Ukraine</option>
+                    <option value="United Arab Emirates">United Arab Emirates</option>
+                    <option value="United Kingdom">United Kingdom</option>
+                    <option value="Venezuela">Venezuela</option>
+                </optgroup>
+            </select>
+
+            <div class="security-box" id="securityBox">
+                <span class="question-text" id="questionDisplay">Identity Check...</span>
+                <input type="text" id="securityAnswer" placeholder="Password?" oninput="checkAnswer()" style="text-align: center;">
+                <div id="successMsg" class="success-badge">✨ Access Granted ✨</div>
+            </div>
+
+            <button id="loginBtn" onclick="openInbox()">Reveal Doves</button>
+            <a href="index.html" class="portal-link">Return to Dove Dispatch</a>
+        </div>
+
+        <div id="inboxScreen" class="hidden">
+            <h3 id="userBadge" style="text-align:center; color:var(--pylea-teal); border:none; font-family:'Dancing Script'; font-size:1.5rem;">...</h3>
+            
+            <button class="refresh-btn" onclick="fetchMessages()" style="margin-top:0; margin-bottom:20px; font-size:0.9rem; padding:10px; background:none; color:var(--border-color); border:1px solid var(--border-color); width:auto; display:block; margin-left:auto; margin-right:auto;">↻ Call New Doves</button>
+
+            <div id="messageList">
+                <div style="text-align:center; margin-top:20px;">Calling doves...</div>
+            </div>
+            
+            <button onclick="location.reload()" style="background:#5c4033; border:none; margin-top:30px;">Close Inbox</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        ✨✍️ Created by Panagiotis Domvros, President of PyleaMUN, All Rights Reserved ✍️✨
+    </div>
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby0SperQbtcynWmcZBIduWtB6lGtgzl5wJ-r0d1hHMMhuyfTQkztOcFZLV51hv_c48bOw/exec';
+
+        // CAPITALS & PASSWORDS
+        const capitals = {
+            "Albania": "Tirana", "Argentina": "Buenos Aires", "Armenia": "Yerevan", "Australia": "Canberra",
+            "Austria": "Vienna", "Belarus": "Minsk", "Bulgaria": "Sofia", "Canada": "Ottawa",
+            "China": "Beijing", "Croatia": "Zagreb", "Czech Republic": "Prague", "Denmark": "Copenhagen",
+            "Egypt": "Cairo", "Estonia": "Tallinn", "Finland": "Helsinki", "France": "Paris",
+            "Germany": "Berlin", "Greece": "Athens", "Hungary": "Budapest", "Iceland": "Reykjavik",
+            "India": "New Delhi", "Ireland": "Dublin", "Italy": "Rome", "Japan": "Tokyo",
+            "Latvia": "Riga", "Malta": "Valletta", "Mexico": "Mexico City", "Montenegro": "Podgorica",
+            "New Zealand": "Wellington", "Nigeria": "Abuja", "North Korea": "Pyongyang",
+            "North Macedonia": "Skopje", "Norway": "Oslo", "Poland": "Warsaw", "Portugal": "Lisbon",
+            "Qatar": "Doha", "Republic of Korea": "Seoul", "Romania": "Bucharest", "Russia": "Moscow",
+            "Saudi Arabia": "Riyadh", "Slovakia": "Bratislava", "Slovenia": "Ljubljana", "South Africa": "Pretoria",
+            "Spain": "Madrid", "Sweden": "Stockholm", "Switzerland": "Bern", "The Netherlands": "Amsterdam",
+            "Turkey": "Ankara", "USA": "Washington", "Ukraine": "Kyiv", "United Arab Emirates": "Abu Dhabi",
+            "United Kingdom": "London", "Venezuela": "Caracas"
+        };
+
+        let currentAnswer = "";
+        let currentUser = {};
+
+        function generateSecurityCheck() {
+            const country = document.getElementById('myCountry').value;
+            const sBox = document.getElementById('securityBox');
+            const qDisplay = document.getElementById('questionDisplay');
+            const sInput = document.getElementById('securityAnswer');
+            const btn = document.getElementById('loginBtn');
+
+            sBox.classList.add('visible');
+            sInput.value = "";
+            sInput.disabled = false;
+            sBox.classList.remove('verified');
+            document.getElementById('successMsg').style.display = 'none';
+            btn.classList.remove('active');
+
+            if (capitals[country]) {
+                qDisplay.innerText = `Security Check: Capital of ${country}?`;
+                currentAnswer = capitals[country];
+            } else {
+                qDisplay.innerText = "Password: Where is this held? (Type 'Pylea')";
+                currentAnswer = "Pylea";
+            }
+        }
+
+        function checkAnswer() {
+            const val = document.getElementById('securityAnswer').value.toLowerCase().trim();
+            const correct = currentAnswer.toLowerCase();
+            if (val.length > 2 && (val === correct || val.includes(correct) || correct.includes(val))) {
+                document.getElementById('securityAnswer').disabled = true;
+                document.getElementById('securityBox').classList.add('verified');
+                document.getElementById('successMsg').style.display = 'block';
+                document.getElementById('loginBtn').classList.add('active');
+            }
+        }
+
+        function openInbox() {
+            const btn = document.getElementById('loginBtn');
+            if (!btn.classList.contains('active')) return;
+
+            currentUser = {
+                committee: document.getElementById('myCommittee').value,
+                country: document.getElementById('myCountry').value
+            };
+
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('inboxScreen').classList.remove('hidden');
+            document.getElementById('userBadge').innerText = `${currentUser.country} (${currentUser.committee})`;
+
+            fetchMessages();
+        }
+
+        async function fetchMessages() {
+            const list = document.getElementById('messageList');
+            try {
+                const response = await fetch(SCRIPT_URL);
+                const allMessages = await response.json();
+                const myMessages = allMessages.filter(msg => msg.committee === currentUser.committee && msg.country === currentUser.country);
+
+                list.innerHTML = '';
+                if (myMessages.length === 0) {
+                    list.innerHTML = '<div style="text-align:center;">No doves have arrived yet.</div>';
+                    return;
+                }
+
+                myMessages.forEach(msg => {
+                    const card = document.createElement('div');
+                    card.className = 'message-card';
+                    card.innerHTML = `
+                        <div class="msg-meta">
+                            <span>FROM: ${escapeHtml(msg.sender)}</span>
+                        </div>
+                        <div class="msg-body">"${escapeHtml(msg.message)}"</div>
+                    `;
+                    list.appendChild(card);
+                });
+            } catch (error) {
+                list.innerHTML = 'Error calling doves.';
+            }
+        }
+
+        function escapeHtml(text) { return text ? text.replace(/</g, "&lt;") : ""; }
+    </script>
+</body>
+</html>

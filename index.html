@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Dovecote</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* --- PYLEA DOVE THEME --- */
+        :root {
+            --parchment-bg: #f3e5ab;   
+            --ink-color: #2c0e0e;      
+            --pylea-teal: #006d77;     /* Official Teal */
+            --pylea-gold: #d4ac0d;     /* Official Gold */
+            --dove-white: #fdfbf7;
+            --border-color: #5c4033;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            /* Dark classy background to make the parchment pop */
+            background-color: #1a1a1a;
+            background-image: radial-gradient(#2b2b2b 15%, transparent 16%), radial-gradient(#2b2b2b 15%, transparent 16%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+            color: var(--ink-color);
+            font-family: 'Cinzel', serif;
+            margin: 0;
+            padding: 15px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- PARCHMENT CARD --- */
+        .card {
+            width: 100%;
+            max-width: 550px;
+            background-color: var(--parchment-bg);
+            padding: 30px 20px; 
+            border-radius: 4px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5), inset 0 0 60px rgba(92, 64, 51, 0.3);
+            border: 6px double var(--border-color);
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        /* --- LOGO STYLING --- */
+        .dove-logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px double var(--pylea-teal); /* Teal Border */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            object-fit: contain; 
+            background-color: #fff; 
+            display: block;
+            margin: 0 auto 15px auto; 
+        }
+
+        /* --- HEADER --- */
+        h1 {
+            color: var(--pylea-teal);
+            font-size: 1.8rem;
+            margin: 0;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-family: 'Dancing Script', cursive;
+            font-size: 2rem;
+            color: var(--border-color);
+            margin-top: 5px;
+        }
+
+        /* --- INPUTS --- */
+        label {
+            display: block;
+            margin-top: 15px;
+            color: var(--border-color);
+            font-weight: bold;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        select, input, textarea {
+            width: 100%;
+            padding: 12px;
+            background-color: rgba(255, 255, 255, 0.4);
+            border: none;
+            border-bottom: 2px solid var(--border-color);
+            color: var(--ink-color);
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            font-size: 16px; 
+            transition: all 0.3s;
+            border-radius: 4px 4px 0 0;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-bottom-color: var(--pylea-teal);
+        }
+
+        /* --- SECURITY BOX --- */
+        .riddle-box {
+            background-color: rgba(0, 109, 119, 0.05); /* Slight teal tint */
+            border: 2px dashed var(--pylea-teal);
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+            border-radius: 8px;
+        }
+
+        .riddle-text {
+            display: block;
+            font-size: 1rem;
+            color: var(--pylea-teal);
+            margin-bottom: 10px;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+
+        .riddle-box.unlocked {
+            background-color: rgba(212, 172, 13, 0.15); /* Gold tint */
+            border-color: var(--pylea-gold);
+            border-style: solid;
+        }
+
+        .success-msg {
+            display: none;
+            color: var(--pylea-teal);
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.4rem;
+            margin-top: 10px;
+        }
+
+        /* --- RELEASE BUTTON --- */
+        button {
+            width: 100%;
+            padding: 18px; 
+            margin-top: 25px;
+            background-color: #4a4a4a;
+            color: rgba(255,255,255,0.7);
+            border: none;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: not-allowed;
+            border-radius: 50px;
+            transition: all 0.4s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button.active {
+            /* Teal Gradient */
+            background: radial-gradient(circle at 30% 30%, #008c99, #006d77);
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 109, 119, 0.4);
+            border: 2px solid #004d55;
+        }
+
+        button.active:active { transform: scale(0.98); }
+
+        /* --- FOOTER LINK --- */
+        .portal-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: var(--border-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(92, 64, 51, 0.3);
+            padding-top: 15px;
+            font-style: italic;
+        }
+        
+        .audio-hint {
+            /* Increased font size as requested */
+            font-size: 1.5rem; 
+            text-align: center;
+            color: var(--border-color);
+            opacity: 0.9;
+            margin-top: 5px;
+            font-style: italic;
+            font-weight: bold;
+        }
+
+        /* --- NEW FOOTER STYLING --- */
+        .footer {
+            margin-top: 40px;
+            font-size: 0.75rem;
+            color: #ccc;
+            text-align: center;
+            line-height: 1.5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="themeSong" loop>
+        <source src="theme.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="card">
+        <img src="logo.png" alt="Pylea Dove Logo" class="dove-logo">
+        
+        <h1>The Dovecote</h1>
+        <div class="subtitle">Diplomatic Messenger Service</div>
+        
+        <div class="audio-hint">(BE POLITE)</div>
+
+        <label>Your Identity</label>
+        <input type="text" id="senderName" placeholder="e.g. Jon Snow (Delegate of France)" autocomplete="off">
+
+        <label>Dove Destination (Committee)</label>
+        <select id="committee">
+            <option value="" disabled selected>Select Committee...</option>
+            <option>Economic & Social Council</option>
+            <option>Historical Crisis Committee</option>
+            <option>Human Rights Council</option>
+            <option>NATO</option>
+            <option>Security Council</option>
+            <option>UN Environment Programme</option>
+            <option>UN Women</option>
+            <option>UNESCO</option>
+            <option>World Health Organisation</option>
+            <option value="Secretariat">Secretariat</option>
+            <option value="Executive Team">Executive Team</option>
+            <option value="Executive Board">Executive Board (Chairs)</option>
+            <option value="Advisors">Advisors / Faculty</option>
+        </select>
+
+        <label>Recipient (Country or Role)</label>
+        <select id="country" onchange="generateQuestion()">
+            <option value="" disabled selected>Select Recipient...</option>
+            
+            <optgroup label="Leadership Roles">
+                <option value="President">President</option>
+                <option value="Secretary General">Secretary General</option>
+                <option value="Deputy Secretary General">Deputy Secretary General</option>
+                <option value="President of the GA">President of the GA</option>
+                <option value="Executive Member">Executive Member</option>
+                <option value="Chair">Chair</option>
+                <option value="Co-Chair">Co-Chair</option>
+                <option value="Advisor">Advisor / Faculty</option>
+                <option value="Staff">Administrative Staff</option>
+            </optgroup>
+
+            <optgroup label="Member States">
+                <option value="Albania">Albania</option>
+                <option value="Argentina">Argentina</option>
+                <option value="Armenia">Armenia</option>
+                <option value="Australia">Australia</option>
+                <option value="Austria">Austria</option>
+                <option value="Belarus">Belarus</option>
+                <option value="Bulgaria">Bulgaria</option>
+                <option value="Byzantium">Byzantium</option>
+                <option value="Canada">Canada</option>
+                <option value="China">China</option>
+                <option value="Croatia">Croatia</option>
+                <option value="Czech Republic">Czech Republic</option>
+                <option value="Denmark">Denmark</option>
+                <option value="Egypt">Egypt</option>
+                <option value="Estonia">Estonia</option>
+                <option value="Finland">Finland</option>
+                <option value="France">France</option>
+                <option value="Germany">Germany</option>
+                <option value="Greece">Greece</option>
+                <option value="Hungary">Hungary</option>
+                <option value="Iceland">Iceland</option>
+                <option value="India">India</option>
+                <option value="Ireland">Ireland</option>
+                <option value="Italy">Italy</option>
+                <option value="Japan">Japan</option>
+                <option value="Latvia">Latvia</option>
+                <option value="Malta">Malta</option>
+                <option value="Mexico">Mexico</option>
+                <option value="Montenegro">Montenegro</option>
+                <option value="New Zealand">New Zealand</option>
+                <option value="Nigeria">Nigeria</option>
+                <option value="North Korea">North Korea</option>
+                <option value="North Macedonia">North Macedonia</option>
+                <option value="Norway">Norway</option>
+                <option value="Poland">Poland</option>
+                <option value="Portugal">Portugal</option>
+                <option value="Qatar">Qatar</option>
+                <option value="Republic of Korea">Republic of Korea</option>
+                <option value="Romania">Romania</option>
+                <option value="Russia">Russia</option>
+                <option value="Saudi Arabia">Saudi Arabia</option>
+                <option value="Slovakia">Slovakia</option>
+                <option value="Slovenia">Slovenia</option>
+                <option value="South Africa">South Africa</option>
+                <option value="Spain">Spain</option>
+                <option value="Sweden">Sweden</option>
+                <option value="Switzerland">Switzerland</option>
+                <option value="The Acarnanian League">The Acarnanian League</option>
+                <option value="The Arcadian League">The Arcadian League</option>
+                <option value="The Archaean League">The Archaean League</option>
+                <option value="The City State of Argos">The City State of Argos</option>
+                <option value="The City State of Athens">The City State of Athens</option>
+                <option value="The City State of Corcyra">The City State of Corcyra</option>
+                <option value="The City State of Corinth">The City State of Corinth</option>
+                <option value="The City State of Elis">The City State of Elis</option>
+                <option value="The City State of Epidaurus">The City State of Epidaurus</option>
+                <option value="The City State of Euboea">The City State of Euboea</option>
+                <option value="The City State of Locris">The City State of Locris</option>
+                <option value="The City State of Megara">The City State of Megara</option>
+                <option value="The City State of Perintus, Thracian Peninsula">The City State of Perintus, Thracian Peninsula</option>
+                <option value="The City State of Rhodes">The City State of Rhodes</option>
+                <option value="The City State of The Aetolian League">The City State of The Aetolian League</option>
+                <option value="The City State of Thebes">The City State of Thebes</option>
+                <option value="The Netherlands">The Netherlands</option>
+                <option value="The Thessalian League">The Thessalian League</option>
+                <option value="Turkey">Turkey</option>
+                <option value="USA">USA</option>
+                <option value="Ukraine">Ukraine</option>
+                <option value="United Arab Emirates">United Arab Emirates</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="Venezuela">Venezuela</option>
+            </optgroup>
+        </select>
+
+        <div class="riddle-box" id="securityBox">
+            <span class="riddle-text" id="questionDisplay">Select recipient to verify identity...</span>
+            <input type="text" id="triviaAnswer" placeholder="Enter password..." oninput="checkAnswer()" disabled style="text-align:center; background: transparent; border-bottom: 2px dashed var(--border-color); border-radius:0;">
+            <div id="successMsg" class="success-msg">✨ Verified ✨</div>
+        </div>
+
+        <label>Your Scroll (Message)</label>
+        <textarea id="messageBody" rows="4" placeholder="Verify identity to unlock the scroll..." disabled></textarea>
+
+        <button id="sendBtn" onclick="submitRose()">Release Dove 🕊️</button>
+
+        <a href="inbox.html" class="portal-link">Check Incoming Doves (Inbox)</a>
+    </div>
+
+    <div class="footer">
+        ✨✍️ Created by Panagiotis Domvros, President of PyleaMUN, All Rights Reserved ✍️✨
+    </div>
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby0SperQbtcynWmcZBIduWtB6lGtgzl5wJ-r0d1hHMMhuyfTQkztOcFZLV51hv_c48bOw/exec';
+
+        // --- MOBILE AUDIO HANDLING ---
+        const audio = document.getElementById("themeSong");
+        let audioStarted = false;
+
+        const tryPlayAudio = () => {
+            if (audioStarted) return;
+            audio.play().then(() => {
+                console.log("Audio started.");
+                audioStarted = true;
+                removeAudioListeners();
+            }).catch(e => {
+                console.log("Waiting for user interaction...");
+            });
+        };
+
+        const addAudioListeners = () => {
+            document.body.addEventListener('click', tryPlayAudio);
+            document.body.addEventListener('touchstart', tryPlayAudio);
+            document.body.addEventListener('keydown', tryPlayAudio);
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(i => i.addEventListener('focus', tryPlayAudio));
+        };
+
+        const removeAudioListeners = () => {
+            document.body.removeEventListener('click', tryPlayAudio);
+            document.body.removeEventListener('touchstart', tryPlayAudio);
+            document.body.removeEventListener('keydown', tryPlayAudio);
+        };
+
+        addAudioListeners();
+
+        // --- DATA & LOGIC ---
+        const capitals = {
+            "Albania": "Tirana", "Argentina": "Buenos Aires", "Armenia": "Yerevan", "Australia": "Canberra",
+            "Austria": "Vienna", "Belarus": "Minsk", "Bulgaria": "Sofia", "Canada": "Ottawa",
+            "China": "Beijing", "Croatia": "Zagreb", "Czech Republic": "Prague", "Denmark": "Copenhagen",
+            "Egypt": "Cairo", "Estonia": "Tallinn", "Finland": "Helsinki", "France": "Paris",
+            "Germany": "Berlin", "Greece": "Athens", "Hungary": "Budapest", "Iceland": "Reykjavik",
+            "India": "New Delhi", "Ireland": "Dublin", "Italy": "Rome", "Japan": "Tokyo",
+            "Latvia": "Riga", "Malta": "Valletta", "Mexico": "Mexico City", "Montenegro": "Podgorica",
+            "New Zealand": "Wellington", "Nigeria": "Abuja", "North Korea": "Pyongyang",
+            "North Macedonia": "Skopje", "Norway": "Oslo", "Poland": "Warsaw", "Portugal": "Lisbon",
+            "Qatar": "Doha", "Republic of Korea": "Seoul", "Romania": "Bucharest", "Russia": "Moscow",
+            "Saudi Arabia": "Riyadh", "Slovakia": "Bratislava", "Slovenia": "Ljubljana", "South Africa": "Pretoria",
+            "Spain": "Madrid", "Sweden": "Stockholm", "Switzerland": "Bern", "The Netherlands": "Amsterdam",
+            "Turkey": "Ankara", "USA": "Washington", "Ukraine": "Kyiv", "United Arab Emirates": "Abu Dhabi",
+            "United Kingdom": "London", "Venezuela": "Caracas"
+        };
+
+        let currentAnswer = "";
+
+        function generateQuestion() {
+            const country = document.getElementById('country').value;
+            const qDisplay = document.getElementById('questionDisplay');
+            const tInput = document.getElementById('triviaAnswer');
+            const sBox = document.getElementById('securityBox');
+            
+            tInput.value = "";
+            tInput.disabled = false;
+            tInput.focus();
+            sBox.classList.remove('unlocked');
+            document.getElementById('successMsg').style.display = 'none';
+            document.getElementById('messageBody').disabled = true;
+            document.getElementById('sendBtn').classList.remove('active');
+
+            if (capitals[country]) {
+                qDisplay.innerText = `Security Check: What is the capital of ${country}?`;
+                currentAnswer = capitals[country];
+            } else {
+                qDisplay.innerText = "Override Code: Where is this held? (Type 'Pylea')";
+                currentAnswer = "Pylea";
+            }
+        }
+
+        function checkAnswer() {
+            const val = document.getElementById('triviaAnswer').value.toLowerCase().trim();
+            const correct = currentAnswer.toLowerCase();
+            if (val.length > 2 && (val === correct || val.includes(correct) || correct.includes(val))) {
+                unlockForm();
+            }
+        }
+
+        function unlockForm() {
+            const tInput = document.getElementById('triviaAnswer');
+            const sBox = document.getElementById('securityBox');
+            const msgBox = document.getElementById('messageBody');
+            const btn = document.getElementById('sendBtn');
+
+            tInput.disabled = true; 
+            sBox.classList.add('unlocked');
+            document.getElementById('successMsg').style.display = 'block';
+            msgBox.disabled = false;
+            msgBox.placeholder = "Inscribe your message here...";
+            msgBox.focus();
+            btn.classList.add('active');
+        }
+
+        function submitRose() {
+            const btn = document.getElementById('sendBtn');
+            if (!btn.classList.contains('active')) return;
+
+            const sender = document.getElementById('senderName').value;
+            const committee = document.getElementById('committee').value;
+            const country = document.getElementById('country').value;
+            const message = document.getElementById('messageBody').value;
+
+            if(!sender || !message) { alert("The scroll is incomplete!"); return; }
+
+            // STOP MUSIC ON DISPATCH
+            if(audio) {
+                audio.pause();
+                audio.currentTime = 0; 
+            }
+
+            btn.innerText = "Dove Released...";
+            
+            const formData = new FormData();
+            formData.append('sender', sender);
+            formData.append('committee', committee);
+            formData.append('country', country);
+            formData.append('message', message);
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: formData
+            }).then(response => {
+                alert("✨ Dove Delivered Successfully!");
+                location.reload(); 
+            }).catch(error => {
+                console.error(error);
+                alert("The dove lost its way. Try again.");
+                btn.innerText = "Release Dove 🕊️";
+            });
+        }
+    </script>
+</body>
+</html>
